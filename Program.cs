@@ -17,7 +17,7 @@ public class Exam2
     
     public async Task GetTask()
     {
-        Console.Clear();
+        
         Console.WriteLine("Starting Assignment 2");
         HttpUtils httpUtils = HttpUtils.instance;
         Response startRespons = await httpUtils.Get(baseURL + startEndpoint + myPersonalID);
@@ -31,6 +31,7 @@ public class Exam2
 
     public async Task taskOne()
     {
+        
         HttpUtils httpUtils = HttpUtils.instance;
         Response taskResponse = await httpUtils.Get(baseURL + taskEndpoint + myPersonalID + "/" + taskID);
         TaskDetails taskDetails = JsonSerializer.Deserialize<TaskDetails>(taskResponse.content);
@@ -60,12 +61,79 @@ public class Exam2
         Response taskAnswerResponse = await httpUtils.Post(baseURL + taskEndpoint + myPersonalID + "/" + taskID, answer);
         Console.WriteLine($"Answer: {Colors.Green}{taskAnswerResponse}{ANSICodes.Reset}");
     }
+     public async Task taskTwo()
+    {
+        await GetTask();
+        HttpUtils httpUtils = HttpUtils.instance;
+        Response task2Response = await httpUtils.Get(baseURL + taskEndpoint + myPersonalID + "/" + taskID); 
+        TaskDetails taskDetails = JsonSerializer.Deserialize<TaskDetails>(task2Response.content);
+
+        string[] parts = taskDetails.parameters.Split(',');
+        List<string> results = new List<string>();
+
+        foreach (string part in parts)
+        {
+            if (int.TryParse(part, out int number))
+            {
+                string result = IsEven(number) ? "even" : "odd";
+                results.Add(result);
+            }
+            else
+            {
+                Console.WriteLine($"Invalid number: {part}");
+                
+                results.Add("error");
+            }
+        }
+
+        string answer2 = string.Join(",", results);
+
+        Response task2AnswerResponse = await httpUtils.Post(baseURL + taskEndpoint + myPersonalID + "/" + taskID, answer2);
+        Console.WriteLine($"Answer: {Colors.Green}{task2AnswerResponse}{ANSICodes.Reset}");
+    }
+    
+    public async Task taskThree()
+    {
+        await GetTask();
+        HttpUtils httpUtils = HttpUtils.instance;
+        Response taskResponse = await httpUtils.Get(baseURL + taskEndpoint + myPersonalID + "/" + taskID);
+        
+        TaskDetails taskDetails = JsonSerializer.Deserialize<TaskDetails>(taskResponse.content);
+
+            string[] parts = taskDetails.parameters.Split(',');
+            int sum = 0;
+
+            foreach (string part in parts)
+            {
+                if (int.TryParse(part, out int number))
+                {
+                    sum += number;
+                }
+                else
+                {
+                    Console.WriteLine($"Invalid number: {part}");
+                }
+            }
+
+            string answer = sum.ToString();
+
+            Response task3AnswerResponse = await httpUtils.Post(baseURL + taskEndpoint + myPersonalID + "/" + taskID, answer);
+            Console.WriteLine($"Answer: {Colors.Green}{task3AnswerResponse}{ANSICodes.Reset}");
+        }
+
+    
+    
+
 
     public static async Task Main(string[] args)
         {
             Exam2 exam2 = new Exam2();
             await exam2.GetTask();
             await exam2.taskOne(); 
+            exam2.taskID = "aLp96";
+            await exam2.taskTwo();
+            exam2.taskID = "psu31_4";
+            await exam2.taskThree();
         }
     static void PrintTaskDetails(TaskDetails taskDetails)
         {
@@ -101,6 +169,10 @@ public class Exam2
 
             return true;
         }
+    static bool IsEven(int num)
+    {
+        return num % 2 == 0;
+    }
 
     class TaskDetails
     {
