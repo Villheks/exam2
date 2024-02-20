@@ -17,21 +17,16 @@ public class Exam2
     
     public async Task GetTask()
     {
-        
         Console.WriteLine("Starting Assignment 2");
         HttpUtils httpUtils = HttpUtils.instance;
         Response startRespons = await httpUtils.Get(baseURL + startEndpoint + myPersonalID);
         Console.WriteLine($"Start:\n{Colors.Magenta}{startRespons}{ANSICodes.Reset}\n\n"); 
         Response taskResponse = await httpUtils.Get(baseURL + taskEndpoint + myPersonalID + "/" + taskID); 
         TaskDetails taskDetails = JsonSerializer.Deserialize<TaskDetails>(taskResponse.content);
-
         PrintTaskDetails(taskDetails);
-        
     }
-
     public async Task taskOne()
     {
-        
         HttpUtils httpUtils = HttpUtils.instance;
         Response taskResponse = await httpUtils.Get(baseURL + taskEndpoint + myPersonalID + "/" + taskID);
         TaskDetails taskDetails = JsonSerializer.Deserialize<TaskDetails>(taskResponse.content);
@@ -85,19 +80,15 @@ public class Exam2
                 results.Add("error");
             }
         }
-
         string answer2 = string.Join(",", results);
-
         Response task2AnswerResponse = await httpUtils.Post(baseURL + taskEndpoint + myPersonalID + "/" + taskID, answer2);
         Console.WriteLine($"Answer: {Colors.Green}{task2AnswerResponse}{ANSICodes.Reset}");
     }
-    
     public async Task taskThree()
     {
         await GetTask();
         HttpUtils httpUtils = HttpUtils.instance;
         Response taskResponse = await httpUtils.Get(baseURL + taskEndpoint + myPersonalID + "/" + taskID);
-        
         TaskDetails taskDetails = JsonSerializer.Deserialize<TaskDetails>(taskResponse.content);
 
             string[] parts = taskDetails.parameters.Split(',');
@@ -114,16 +105,28 @@ public class Exam2
                     Console.WriteLine($"Invalid number: {part}");
                 }
             }
-
             string answer = sum.ToString();
 
             Response task3AnswerResponse = await httpUtils.Post(baseURL + taskEndpoint + myPersonalID + "/" + taskID, answer);
             Console.WriteLine($"Answer: {Colors.Green}{task3AnswerResponse}{ANSICodes.Reset}");
         }
 
-    
-    
+    public async Task taskFour()
+    {
+        await GetTask();
+        HttpUtils httpUtils = HttpUtils.instance;
+        Response task4Response = await httpUtils.Get(baseURL + taskEndpoint + myPersonalID + "/" + taskID);
+        TaskDetails taskDetails = JsonSerializer.Deserialize<TaskDetails>(task4Response.content);
 
+        string[] parts = taskDetails.parameters.Split(',');
+        int[] numbers = Array.ConvertAll(parts, int.Parse);
+
+        int lastNumber = numbers[numbers.Length - 1];
+        int nextNumber = lastNumber + (lastNumber - numbers[numbers.Length - 2]);
+        string answer = nextNumber.ToString();
+        Response taskAnswerResponse = await httpUtils.Post(baseURL + taskEndpoint + myPersonalID + "/" + taskID, answer);
+        Console.WriteLine($"Answer: {Colors.Green}{taskAnswerResponse}{ANSICodes.Reset}");
+    }
 
     public static async Task Main(string[] args)
         {
@@ -134,6 +137,8 @@ public class Exam2
             await exam2.taskTwo();
             exam2.taskID = "psu31_4";
             await exam2.taskThree();
+            exam2.taskID = "KO1pD3";
+            await exam2.taskFour();
         }
     static void PrintTaskDetails(TaskDetails taskDetails)
         {
